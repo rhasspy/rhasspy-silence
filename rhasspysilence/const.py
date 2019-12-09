@@ -45,6 +45,16 @@ class VoiceCommandRecorder(ABC):
     """Segment audio into voice command."""
 
     @abstractmethod
+    def start(self):
+        """Begin new voice command."""
+        pass
+
+    @abstractmethod
+    def stop(self):
+        """Free any resources."""
+        pass
+
+    @abstractmethod
     def process_chunk(self, audio_chunk: bytes) -> typing.Optional[VoiceCommand]:
         """Process a single chunk of audio data."""
         pass

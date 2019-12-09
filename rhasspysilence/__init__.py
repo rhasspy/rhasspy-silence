@@ -85,10 +85,10 @@ class WebRtcVadRecorder(VoiceCommandRecorder):
         self.current_chunk: bytes = bytes()
 
     def start(self):
-        """Reset state."""
+        """Begin new voice command."""
 
         # State
-        self.events = []
+        self.events.clear()
         self.before_phrase_chunks.clear()
         self.phrase_buffer = bytes()
 
@@ -108,6 +108,13 @@ class WebRtcVadRecorder(VoiceCommandRecorder):
         self.current_seconds: float = 0
 
         self.current_chunk: bytes = bytes()
+
+    def stop(self):
+        """Free any resources."""
+        self.before_phrase_chunks.clear()
+        self.events.clear()
+        self.phrase_buffer = bytes()
+        self.current_chunk = bytes()
 
     def process_chunk(self, audio_chunk: bytes) -> typing.Optional[VoiceCommand]:
         """Process a single chunk of audio data."""
