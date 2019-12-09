@@ -28,7 +28,7 @@ class WebRtcVadRecorder(VoiceCommandRecorder):
         sample_rate: int = 16000,
         chunk_size: int = 960,
         min_seconds: float = 2,
-        max_seconds: float = 30,
+        max_seconds: typing.Optional[float] = 30,
         speech_seconds: float = 0.3,
         silence_seconds: float = 0.5,
         before_seconds: float = 0.25,
@@ -74,7 +74,7 @@ class WebRtcVadRecorder(VoiceCommandRecorder):
         )
         self.phrase_buffer: bytes = bytes()
 
-        self.max_buffers: int = 0
+        self.max_buffers: typing.Optional[int] = None
         self.min_phrase_buffers: int = 0
         self.speech_buffers_left: int = 0
         self.last_speech: bool = False
@@ -92,7 +92,13 @@ class WebRtcVadRecorder(VoiceCommandRecorder):
         self.before_phrase_chunks.clear()
         self.phrase_buffer = bytes()
 
-        self.max_buffers = int(math.ceil(self.max_seconds / self.seconds_per_buffer))
+        if self.max_seconds:
+            self.max_buffers = int(
+                math.ceil(self.max_seconds / self.seconds_per_buffer)
+            )
+        else:
+            self.max_buffers = None
+
         self.min_phrase_buffers = int(
             math.ceil(self.min_seconds / self.seconds_per_buffer)
         )
@@ -136,13 +142,14 @@ class WebRtcVadRecorder(VoiceCommandRecorder):
             self.current_seconds += self.seconds_per_buffer
 
             # Check maximum number of seconds to record
-            self.max_buffers -= 1
-            if self.max_buffers <= 0:
-                # Timeout
-                _LOGGER.warning("Voice command timeout")
-                return VoiceCommand(
-                    result=VoiceCommandResult.FAILURE, events=self.events
-                )
+            if self.max_buffers:
+                self.max_buffers -= 1
+                if self.max_buffers <= 0:
+                    # Timeout
+                    _LOGGER.warning("Voice command timeout")
+                    return VoiceCommand(
+                        result=VoiceCommandResult.FAILURE, events=self.events
+                    )
 
             # Detect speech in chunk
             is_speech = self.vad.is_speech(chunk, self.sample_rate)
