@@ -9,7 +9,7 @@ with open("requirements.txt", "r") as requirements_file:
     requirements = requirements_file.read().splitlines()
 
 setuptools.setup(
-    name="rhasspy-nlu",
+    name="rhasspy-silence",
     version="0.1",
     author="Michael Hansen",
     author_email="hansen.mike@gmail.com",

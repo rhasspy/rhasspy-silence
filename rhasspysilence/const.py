@@ -3,7 +3,7 @@ Data structures for voice command recording.
 """
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import BinaryIO, Optional, List
+import typing
 
 import attr
 
@@ -37,14 +37,14 @@ class VoiceCommand:
     """Result of voice command recognition."""
 
     result: VoiceCommandResult = attr.ib()
-    audio_data: Optional[bytes] = attr.ib(default=None)
-    events: List[VoiceCommandEvent] = attr.ib(factory=list)
+    audio_data: typing.Optional[bytes] = attr.ib(default=None)
+    events: typing.List[VoiceCommandEvent] = attr.ib(factory=list)
 
 
 class VoiceCommandRecorder(ABC):
     """Segment audio into voice command."""
 
     @abstractmethod
-    def record(self, audio_source: BinaryIO) -> VoiceCommand:
-        """Record voice command from audio stream."""
+    def process_chunk(self, audio_chunk: bytes) -> typing.Optional[VoiceCommand]:
+        """Process a single chunk of audio data."""
         pass
