@@ -8,9 +8,12 @@ with open(os.path.join(this_dir, "README.md"), "r") as readme_file:
 with open("requirements.txt", "r") as requirements_file:
     requirements = requirements_file.read().splitlines()
 
+with open("VERSION", "r") as version_file:
+    version = version_file.read().strip()
+
 setuptools.setup(
     name="rhasspy-silence",
-    version="0.1",
+    version=version,
     author="Michael Hansen",
     author_email="hansen.mike@gmail.com",
     url="https://github.com/synesthesiam/rhasspy-silence",
@@ -19,7 +22,6 @@ setuptools.setup(
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
-        "Operation System :: OS Independent",
     ],
     long_description=long_description,
     long_description_content_type="text/markdown",
