@@ -1,4 +1,4 @@
-.PHONY: check test venv
+.PHONY: check test venv dist
 
 check:
 	flake8 rhasspysilence/*.py
