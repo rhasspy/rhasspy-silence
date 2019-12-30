@@ -18,6 +18,7 @@ setuptools.setup(
     author_email="hansen.mike@gmail.com",
     url="https://github.com/synesthesiam/rhasspy-silence",
     packages=setuptools.find_packages(),
+    package_data={"rhasspysilence": ["py.typed"]},
     install_requires=requirements,
     classifiers=[
         "Programming Language :: Python :: 3",
