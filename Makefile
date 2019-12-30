@@ -3,6 +3,7 @@
 check:
 	flake8 rhasspysilence/*.py
 	pylint rhasspysilence/*.py
+	mypy rhasspysilence/*.py
 
 test:
 	python3 -m unittest rhasspysilence.test

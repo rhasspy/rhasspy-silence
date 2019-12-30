@@ -221,3 +221,5 @@ class WebRtcVadRecorder(VoiceCommandRecorder):
                     self.silence_buffers = int(
                         math.ceil(self.silence_seconds / self.seconds_per_buffer)
                     )
+
+        return None
