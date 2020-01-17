@@ -50,8 +50,8 @@ class VoiceCommandRecorder(ABC):
         pass
 
     @abstractmethod
-    def stop(self):
-        """Free any resources."""
+    def stop(self) -> bytes:
+        """Free any resources and return recorded audio."""
         pass
 
     @abstractmethod

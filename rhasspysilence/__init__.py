@@ -115,12 +115,22 @@ class WebRtcVadRecorder(VoiceCommandRecorder):
 
         self.current_chunk: bytes = bytes()
 
-    def stop(self):
-        """Free any resources."""
+    def stop(self) -> bytes:
+        """Free any resources and return recorded audio."""
+        before_buffer = bytes()
+        for before_chunk in self.before_phrase_chunks:
+            before_buffer += before_chunk
+
+        audio_data = before_buffer + self.phrase_buffer
+
+        # Clear state
         self.before_phrase_chunks.clear()
         self.events.clear()
         self.phrase_buffer = bytes()
         self.current_chunk = bytes()
+
+        # Return leftover audio
+        return audio_data
 
     def process_chunk(self, audio_chunk: bytes) -> typing.Optional[VoiceCommand]:
         """Process a single chunk of audio data."""
