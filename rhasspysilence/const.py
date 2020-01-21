@@ -24,21 +24,21 @@ class VoiceCommandEventType(str, Enum):
     STOPPED = "stopped"
 
 
-@attr.s
+@attr.s(auto_attribs=True)
 class VoiceCommandEvent:
     """Speech/silence events."""
 
-    type: VoiceCommandEventType = attr.ib()
-    time: float = attr.ib()
+    type: VoiceCommandEventType
+    time: float
 
 
-@attr.s
+@attr.s(auto_attribs=True)
 class VoiceCommand:
     """Result of voice command recognition."""
 
-    result: VoiceCommandResult = attr.ib()
-    audio_data: typing.Optional[bytes] = attr.ib(default=None)
-    events: typing.List[VoiceCommandEvent] = attr.ib(factory=list)
+    result: VoiceCommandResult
+    audio_data: typing.Optional[bytes] = None
+    events: typing.List[VoiceCommandEvent] = attr.Factory(list)
 
 
 class VoiceCommandRecorder(ABC):
