@@ -1,9 +1,9 @@
 """
 Data structures for voice command recording.
 """
+import typing
 from abc import ABC, abstractmethod
 from enum import Enum
-import typing
 
 import attr
 

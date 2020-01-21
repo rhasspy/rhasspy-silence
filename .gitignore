@@ -1,5 +1,8 @@
 __pycache__/
 .mypy_cache/
+.coverage
+coverage.xml
 .venv/
 *.egg-info/
+.vscode/
 dist/

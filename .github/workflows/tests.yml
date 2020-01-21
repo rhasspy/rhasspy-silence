@@ -1,0 +1,49 @@
+---
+name: Tests
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-18.04, macos-latest]
+        python-version: [3.6, 3.7, 3.8]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v1
+      - name: Install dependencies on macOS
+        if: startsWith(matrix.os, 'macos')
+        run: |
+          brew install fakeroot dpkg
+          brew link --force gettext
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install Python dependencies
+        run: |
+          pip install --upgrade pip
+          pip install wheel setuptools
+          pip install -r requirements.txt
+          pip install -r requirements_dev.txt
+      - name: Check code
+        run: make check
+      - name: Test code
+        run: make test
+      - name: Make package
+        run: make dist
+  tagging:
+    needs: [test]
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: Bump version and push tag
+        uses: rhasspy/rhasspy-tag-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        id: bump_tag
