@@ -1,4 +1,6 @@
+"""Set up for rhasspysilence"""
 import os
+
 import setuptools
 
 this_dir = os.path.abspath(os.path.dirname(__file__))
@@ -16,7 +18,7 @@ setuptools.setup(
     version=version,
     author="Michael Hansen",
     author_email="hansen.mike@gmail.com",
-    url="https://github.com/synesthesiam/rhasspy-silence",
+    url="https://github.com/rhasspy/rhasspy-silence",
     packages=setuptools.find_packages(),
     package_data={"rhasspysilence": ["py.typed"]},
     install_requires=requirements,

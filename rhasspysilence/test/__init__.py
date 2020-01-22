@@ -4,6 +4,7 @@ import wave
 
 from rhasspysilence import WebRtcVadRecorder, VoiceCommandResult
 
+
 class RhasspySilenceTestCase(unittest.TestCase):
     """Tests for rhasspysilence."""
 
@@ -25,8 +26,8 @@ class RhasspySilenceTestCase(unittest.TestCase):
         with wave.open("etc/turn_on_living_room_lamp.wav", "r") as wav_file:
             audio_data = wav_file.readframes(wav_file.getnframes())
             while audio_data:
-                chunk = audio_data[:self.chunk_size]
-                audio_data = audio_data[self.chunk_size:]
+                chunk = audio_data[: self.chunk_size]
+                audio_data = audio_data[self.chunk_size :]
 
                 command = self.recorder.process_chunk(chunk)
                 if command:
@@ -44,8 +45,8 @@ class RhasspySilenceTestCase(unittest.TestCase):
         with wave.open("etc/noise.wav", "r") as wav_file:
             audio_data = wav_file.readframes(wav_file.getnframes())
             while audio_data:
-                chunk = audio_data[:self.chunk_size]
-                audio_data = audio_data[self.chunk_size:]
+                chunk = audio_data[: self.chunk_size]
+                audio_data = audio_data[self.chunk_size :]
 
                 command = self.recorder.process_chunk(chunk)
                 if command:
