@@ -7,11 +7,11 @@ from collections import deque
 import webrtcvad
 
 from .const import (
-    VoiceCommandRecorder,
     VoiceCommand,
-    VoiceCommandResult,
     VoiceCommandEvent,
     VoiceCommandEventType,
+    VoiceCommandRecorder,
+    VoiceCommandResult,
 )
 
 _LOGGER = logging.getLogger(__name__)
