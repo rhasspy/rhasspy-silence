@@ -24,7 +24,7 @@ class VoiceCommandEventType(str, Enum):
     STOPPED = "stopped"
 
 
-@attr.s(auto_attribs=True)
+@attr.s(auto_attribs=True, slots=True)
 class VoiceCommandEvent:
     """Speech/silence events."""
 
@@ -32,7 +32,7 @@ class VoiceCommandEvent:
     time: float
 
 
-@attr.s(auto_attribs=True)
+@attr.s(auto_attribs=True, slots=True)
 class VoiceCommand:
     """Result of voice command recognition."""
 
