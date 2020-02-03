@@ -6,3 +6,4 @@ coverage.xml
 *.egg-info/
 .vscode/
 dist/
+download/
