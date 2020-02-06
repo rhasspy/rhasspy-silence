@@ -3,7 +3,7 @@ black==19.10b0
 coverage==5.0.2
 flake8==3.7.9
 mypy==0.761
--e git://github.com/pyinstaller/pyinstaller.git@9dd34bdfbaeaa4e0459bd3051d1caf0c7d75073f#egg=pyinstaller
+pyinstaller==3.6
 pylint==2.4.4
 pytest==5.3.2
 pytest-cov==2.8.1
