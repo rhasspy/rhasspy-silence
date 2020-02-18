@@ -19,7 +19,6 @@ mypy "$@"
 black --check .
 isort --check-only "$@"
 yamllint .
-pip list --outdated
 
 # -----------------------------------------------------------------------------
 
