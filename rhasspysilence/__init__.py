@@ -31,7 +31,7 @@ class WebRtcVadRecorder(VoiceCommandRecorder):
         max_seconds: typing.Optional[float] = 30,
         speech_seconds: float = 0.3,
         silence_seconds: float = 0.5,
-        before_seconds: float = 0.25,
+        before_seconds: float = 0.5,
     ):
         self.vad_mode = vad_mode
         self.sample_rate = sample_rate
