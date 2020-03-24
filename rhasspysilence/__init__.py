@@ -27,7 +27,7 @@ class WebRtcVadRecorder(VoiceCommandRecorder):
         vad_mode: int = 3,
         sample_rate: int = 16000,
         chunk_size: int = 960,
-        min_seconds: float = 2,
+        min_seconds: float = 1,
         max_seconds: typing.Optional[float] = 30,
         speech_seconds: float = 0.3,
         silence_seconds: float = 0.5,
