@@ -3,9 +3,8 @@ Data structures for voice command recording.
 """
 import typing
 from abc import ABC, abstractmethod
+from dataclasses import dataclass, field
 from enum import Enum
-
-import attr
 
 
 class VoiceCommandResult(str, Enum):
@@ -24,7 +23,7 @@ class VoiceCommandEventType(str, Enum):
     STOPPED = "stopped"
 
 
-@attr.s(auto_attribs=True, slots=True)
+@dataclass
 class VoiceCommandEvent:
     """Speech/silence events."""
 
@@ -32,13 +31,13 @@ class VoiceCommandEvent:
     time: float
 
 
-@attr.s(auto_attribs=True, slots=True)
+@dataclass
 class VoiceCommand:
     """Result of voice command recognition."""
 
     result: VoiceCommandResult
     audio_data: typing.Optional[bytes] = None
-    events: typing.List[VoiceCommandEvent] = attr.Factory(list)
+    events: typing.List[VoiceCommandEvent] = field(default_factory=list)
 
 
 class VoiceCommandRecorder(ABC):
