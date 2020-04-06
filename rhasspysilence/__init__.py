@@ -27,6 +27,7 @@ class WebRtcVadRecorder(VoiceCommandRecorder):
         vad_mode: int = 3,
         sample_rate: int = 16000,
         chunk_size: int = 960,
+        skip_seconds: float = 0,
         min_seconds: float = 1,
         max_seconds: typing.Optional[float] = 30,
         speech_seconds: float = 0.3,
@@ -36,6 +37,7 @@ class WebRtcVadRecorder(VoiceCommandRecorder):
         self.vad_mode = vad_mode
         self.sample_rate = sample_rate
         self.chunk_size = chunk_size
+        self.skip_seconds = skip_seconds
         self.min_seconds = min_seconds
         self.max_seconds = max_seconds
         self.speech_seconds = speech_seconds
@@ -67,6 +69,8 @@ class WebRtcVadRecorder(VoiceCommandRecorder):
             math.ceil(self.speech_seconds / self.seconds_per_buffer)
         )
 
+        self.skip_buffers = int(math.ceil(self.skip_seconds / self.seconds_per_buffer))
+
         # State
         self.events: typing.List[VoiceCommandEvent] = []
         self.before_phrase_chunks: typing.Deque[bytes] = deque(
@@ -76,6 +80,7 @@ class WebRtcVadRecorder(VoiceCommandRecorder):
 
         self.max_buffers: typing.Optional[int] = None
         self.min_phrase_buffers: int = 0
+        self.skip_buffers_left: int = 0
         self.speech_buffers_left: int = 0
         self.last_speech: bool = False
         self.in_phrase: bool = False
@@ -104,6 +109,7 @@ class WebRtcVadRecorder(VoiceCommandRecorder):
         )
 
         self.speech_buffers_left = self.speech_buffers
+        self.skip_buffers_left = self.skip_buffers
         self.last_speech = False
         self.in_phrase = False
         self.after_phrase = False
@@ -143,6 +149,11 @@ class WebRtcVadRecorder(VoiceCommandRecorder):
             # Exctract chunk
             chunk = self.current_chunk[: self.chunk_size]
             self.current_chunk = self.current_chunk[self.chunk_size :]
+
+            if self.skip_buffers_left > 0:
+                # Skip audio at beginning
+                self.skip_buffers_left -= 1
+                continue
 
             if self.in_phrase:
                 self.phrase_buffer += chunk
