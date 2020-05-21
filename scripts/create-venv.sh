@@ -18,10 +18,12 @@ download="${src_dir}/download"
 
 # -----------------------------------------------------------------------------
 
+: "${PYTHON=python3}"
+
 # Create virtual environment
 echo "Creating virtual environment at ${venv}"
 rm -rf "${venv}"
-python3 -m venv "${venv}"
+"${PYTHON}" -m venv "${venv}"
 source "${venv}/bin/activate"
 
 # Install Python dependencies
