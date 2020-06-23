@@ -1,23 +1,26 @@
 SHELL := bash
-SOURCE = rhasspysilence
-PYTHON_FILES = $(SOURCE)/*.py tests/*.py setup.py
-PIP_INSTALL ?= install
 
-.PHONY: reformat check test venv dist
+.PHONY: reformat check dist install
 
-all: venv
+all:
+
+# -----------------------------------------------------------------------------
+# Python
+# -----------------------------------------------------------------------------
 
 reformat:
-	scripts/format-code.sh $(PYTHON_FILES)
+	scripts/format-code.sh
 
 check:
-	scripts/check-code.sh $(PYTHON_FILES)
+	scripts/check-code.sh
 
-test:
-	scripts/run-tests.sh $(SOURCE)
-
-venv:
+install:
 	scripts/create-venv.sh
 
-dist:
+dist: sdist
+
+sdist:
 	python3 setup.py sdist
+
+test:
+	scripts/run-tests.sh

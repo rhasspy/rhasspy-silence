@@ -11,10 +11,17 @@ if [[ -d "${venv}" ]]; then
     source "${venv}/bin/activate"
 fi
 
+dir_name="$(basename "${src_dir}")"
+python_name="$(echo "${dir_name}" | sed -e 's/-//' | sed -e 's/-/_/g')"
+python_files=(
+    "${src_dir}/${python_name}"/*.py
+    "${src_dir}/setup.py"
+)
+
 # -----------------------------------------------------------------------------
 
-black .
-isort "$@"
+black "${python_files[@]}"
+isort "${python_files[@]}"
 
 # -----------------------------------------------------------------------------
 

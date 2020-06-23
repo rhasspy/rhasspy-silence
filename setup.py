@@ -1,34 +1,42 @@
 """Setup script for rhasspy-silence package"""
-import os
+from pathlib import Path
 
 import setuptools
 
-this_dir = os.path.abspath(os.path.dirname(__file__))
-with open(os.path.join(this_dir, "README.md"), "r") as readme_file:
-    long_description = readme_file.read()
+this_dir = Path(__file__).parent
 
-with open(os.path.join(this_dir, "requirements.txt"), "r") as requirements_file:
+# -----------------------------------------------------------------------------
+
+# Load README in as long description
+long_description: str = ""
+readme_path = this_dir / "README.md"
+if readme_path.is_file():
+    long_description = readme_path.read_text()
+
+requirements_path = this_dir / "requirements.txt"
+with open(requirements_path, "r") as requirements_file:
     requirements = requirements_file.read().splitlines()
 
-with open(os.path.join(this_dir, "VERSION"), "r") as version_file:
+version_path = this_dir / "VERSION"
+with open(version_path, "r") as version_file:
     version = version_file.read().strip()
 
 setuptools.setup(
     name="rhasspy-silence",
     version=version,
     author="Michael Hansen",
-    author_email="hansen.mike@gmail.com",
+    author_email="mike@rhasspy.org",
     url="https://github.com/rhasspy/rhasspy-silence",
     packages=setuptools.find_packages(),
     package_data={"rhasspysilence": ["py.typed"]},
     install_requires=requirements,
     classifiers=[
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "License :: OSI Approved :: MIT License",
     ],
     long_description=long_description,
     long_description_content_type="text/markdown",
+    python_requires=">=3.7",
 )
