@@ -21,6 +21,7 @@ class VoiceCommandEventType(str, Enum):
     SPEECH = "speech"
     SILENCE = "silence"
     STOPPED = "stopped"
+    TIMEOUT = "timeout"
 
 
 @dataclass
@@ -57,3 +58,13 @@ class VoiceCommandRecorder(ABC):
     def process_chunk(self, audio_chunk: bytes) -> typing.Optional[VoiceCommand]:
         """Process a single chunk of audio data."""
         pass
+
+
+class SilenceMethod(str, Enum):
+    """Method used to determine if an audio frame contains silence."""
+
+    VAD_ONLY = "vad_only"
+    RATIO_ONLY = "ratio_only"
+    CURRENT_ONLY = "current_only"
+    VAD_AND_RATIO = "vad_and_ratio"
+    VAD_AND_CURRENT = "vad_and_current"
