@@ -51,6 +51,18 @@ class WebRtcVadRecorder(VoiceCommandRecorder):
 
     silence_seconds: float = 0.5
         Seconds of silence before a voice command has finished
+
+    max_energy: Optional[float] = None
+        Maximum denoise energy value (None for dynamic setting from observed audio)
+
+    max_current_ratio_threshold: Optional[float] = None
+        Ratio of max/current energy above which audio is considered speech
+
+    current_energy_threshold: Optional[float] = None
+        Energy threshold above which audio is considered speech
+
+    silence_method: SilenceMethod = "vad_only"
+        Method for deciding if an audio chunk contains silence or speech
     """
 
     def __init__(
@@ -90,6 +102,7 @@ class WebRtcVadRecorder(VoiceCommandRecorder):
             SilenceMethod.VAD_ONLY,
             SilenceMethod.VAD_AND_RATIO,
             SilenceMethod.VAD_AND_CURRENT,
+            SilenceMethod.ALL,
         ]:
             self.use_vad = True
         else:
@@ -98,6 +111,7 @@ class WebRtcVadRecorder(VoiceCommandRecorder):
         if self.silence_method in [
             SilenceMethod.VAD_AND_RATIO,
             SilenceMethod.RATIO_ONLY,
+            SilenceMethod.ALL,
         ]:
             self.use_ratio = True
             assert (
@@ -109,6 +123,7 @@ class WebRtcVadRecorder(VoiceCommandRecorder):
         if self.silence_method in [
             SilenceMethod.VAD_AND_CURRENT,
             SilenceMethod.CURRENT_ONLY,
+            SilenceMethod.ALL,
         ]:
             self.use_current = True
             assert (

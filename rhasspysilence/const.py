@@ -61,10 +61,32 @@ class VoiceCommandRecorder(ABC):
 
 
 class SilenceMethod(str, Enum):
-    """Method used to determine if an audio frame contains silence."""
+    """Method used to determine if an audio frame contains silence.
+
+    Values
+    ------
+    VAD_ONLY
+      Only use webrtcvad
+
+    RATIO_ONLY
+      Only use max/current energy ratio threshold
+
+    CURRENT_ONLY
+      Only use current energy threshold
+
+    VAD_AND_RATIO
+      Use webrtcvad and max/current energy ratio threshold
+
+    VAD_AND_CURRENT
+      Use webrtcvad and current energy threshold
+
+    ALL
+      Use webrtcvad, max/current energy ratio, and current energy threshold
+    """
 
     VAD_ONLY = "vad_only"
     RATIO_ONLY = "ratio_only"
     CURRENT_ONLY = "current_only"
     VAD_AND_RATIO = "vad_and_ratio"
     VAD_AND_CURRENT = "vad_and_current"
+    ALL = "all"
