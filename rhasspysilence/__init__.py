@@ -22,7 +22,36 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class WebRtcVadRecorder(VoiceCommandRecorder):
-    """Detect speech/silence using webrtcvad."""
+    """Detect speech/silence using webrtcvad.
+
+    Attributes
+    ----------
+    vad_mode: int = 3
+        Sensitivity of webrtcvad (1-3), 1 is most sensitive
+
+    sample_rate: int = 16000
+        Sample rate of audio chunks (hertz)
+
+    chunk_size: int = 960
+
+    skip_seconds: float = 0
+        Seconds of audio to skip before voice command detection starts
+
+    speech_seconds: float = 0.3
+        Seconds of speech before voice command has begun
+
+    before_seconds: float = 0.5
+        Seconds of audio to keep before voice command has begun
+
+    min_seconds: float = 1.0
+        Minimum length of voice command (seconds)
+
+    max_seconds: Optional[float] = 30.0
+        Maximum length of voice command before timeout (seconds, None for no timeout)
+
+    silence_seconds: float = 0.5
+        Seconds of silence before a voice command has finished
+    """
 
     def __init__(
         self,
