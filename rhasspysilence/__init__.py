@@ -237,7 +237,7 @@ class WebRtcVadRecorder(VoiceCommandRecorder):
 
         # Process audio in exact chunk(s)
         while len(self.current_chunk) > self.chunk_size:
-            # Exctract chunk
+            # Extract chunk
             chunk = self.current_chunk[: self.chunk_size]
             self.current_chunk = self.current_chunk[self.chunk_size :]
 
