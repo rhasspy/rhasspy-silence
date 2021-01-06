@@ -46,7 +46,7 @@ Besides just `webrtcvad`, silence detection using the denoised energy of the inc
 
 * Threshold - simple threshold where energy above is considered speech and energy below is silence
 * Max/Current Ratio - ratio of maximum energy and current energy value is compared to a threshold
-    * Ratio above threshold is considered speech, ratio below is silence
+    * Ratio below threshold is considered speech, ratio above is silence
     * Maximum energy value can be provided (static) or set from observed audio (dynamic)
     
 Both of the energy methods can be combined with `webrtcvad`. When combined, audio is considered to be silence unless **both** methods detect speech - i.e., `webrtcvad` classifies the audio chunk as speech and the energy value/ratio is above threshold. You can even combine all three methods using `SilenceMethod.ALL`.

@@ -56,7 +56,7 @@ class WebRtcVadRecorder(VoiceCommandRecorder):
         Maximum denoise energy value (None for dynamic setting from observed audio)
 
     max_current_ratio_threshold: Optional[float] = None
-        Ratio of max/current energy above which audio is considered speech
+        Ratio of max/current energy below which audio is considered speech
 
     current_energy_threshold: Optional[float] = None
         Energy threshold above which audio is considered speech
@@ -374,7 +374,7 @@ class WebRtcVadRecorder(VoiceCommandRecorder):
                     ratio = 0
 
                 assert self.max_current_ratio_threshold is not None
-                all_silence = all_silence and (ratio < self.max_current_ratio_threshold)
+                all_silence = all_silence and (ratio > self.max_current_ratio_threshold)
             elif self.use_current:
                 # Current energy compared to threshold
                 assert self.current_energy_threshold is not None
