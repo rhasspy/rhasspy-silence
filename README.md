@@ -71,11 +71,24 @@ The characters printed to the console indicate how `rhasspy-silence` is classify
 
 By changing the `--output-type` argument, you can have the current audio energy or max/current ratio printed instead. These values can then be used to set threshold values for further testing.
 
+## Splitting By Silence
+
+You can use `rhasspy-silence` to split audio into WAV files by silence using:
+
+```sh
+$ sox audio.wav -t raw - | bin/rhasspy-silence --quiet --split-dir splits --trim-silence
+```
+
+This will split raw 16Khz 16-bit PCM audio into WAV files in a directory named `splits`.
+By default, files will simply be numbered (0.wav, 1.wav, etc). Set `--split-format` to change this.
+
+Adding `--trim-silence` is optional, and can be controlled further with other `--trim-*` options (see `--help`).
+
 ## CLI Arguments
 
 ```
 usage: rhasspy-silence [-h]
-                       [--output-type {speech_silence,current_energy,max_current_ratio}]
+                       [--output-type {speech_silence,current_energy,max_current_ratio,none}]
                        [--chunk-size CHUNK_SIZE] [--skip-seconds SKIP_SECONDS]
                        [--max-seconds MAX_SECONDS] [--min-seconds MIN_SECONDS]
                        [--speech-seconds SPEECH_SECONDS]
@@ -86,11 +99,15 @@ usage: rhasspy-silence [-h]
                        [--max-energy MAX_ENERGY]
                        [--max-current-ratio-threshold MAX_CURRENT_RATIO_THRESHOLD]
                        [--silence-method {vad_only,ratio_only,current_only,vad_and_ratio,vad_and_current,all}]
-                       [--debug]
+                       [--split-dir SPLIT_DIR] [--split-format SPLIT_FORMAT]
+                       [--trim-silence] [--trim-ratio TRIM_RATIO]
+                       [--trim-chunk-size TRIM_CHUNK_SIZE]
+                       [--trim-keep-before TRIM_KEEP_BEFORE]
+                       [--trim-keep-after TRIM_KEEP_AFTER] [--quiet] [--debug]
 
 optional arguments:
   -h, --help            show this help message and exit
-  --output-type {speech_silence,current_energy,max_current_ratio}
+  --output-type {speech_silence,current_energy,max_current_ratio,none}
                         Type of printed output
   --chunk-size CHUNK_SIZE
                         Size of audio chunks. Must be 10, 20, or 30 ms for
@@ -119,5 +136,25 @@ optional arguments:
                         audio frame
   --silence-method {vad_only,ratio_only,current_only,vad_and_ratio,vad_and_current,all}
                         Method for detecting silence
+  --split-dir SPLIT_DIR
+                        Split incoming audio by silence and write WAV file(s)
+                        to directory
+  --split-format SPLIT_FORMAT
+                        Format for split file names (default: '{}.wav', only
+                        with --split-dir)
+  --trim-silence        Trim silence when splitting (only with --split-dir)
+  --trim-ratio TRIM_RATIO
+                        Max/current energy ratio used to detect silence (only
+                        with --trim-silence)
+  --trim-chunk-size TRIM_CHUNK_SIZE
+                        Size of audio chunks for detecting silence (only with
+                        --trim-silence)
+  --trim-keep-before TRIM_KEEP_BEFORE
+                        Number of audio chunks before speech to keep (only
+                        with --trim-silence)
+  --trim-keep-after TRIM_KEEP_AFTER
+                        Number of audio chunks after speech to keep (only with
+                        --trim-silence)
+  --quiet               Set output type to none
   --debug               Print DEBUG messages to the console
 ```

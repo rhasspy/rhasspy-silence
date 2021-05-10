@@ -3,10 +3,13 @@ import argparse
 import logging
 import sys
 import typing
+import wave
 from enum import Enum
+from pathlib import Path
 
 from . import WebRtcVadRecorder
 from .const import SilenceMethod, VoiceCommandEventType
+from .utils import trim_silence
 
 # -----------------------------------------------------------------------------
 
@@ -17,6 +20,7 @@ class OutputType(str, Enum):
     SPEECH_SILENCE = "speech_silence"
     CURRENT_ENERGY = "current_energy"
     MAX_CURRENT_RATIO = "max_current_ratio"
+    NONE = "none"
 
 
 # -----------------------------------------------------------------------------
@@ -104,6 +108,48 @@ def main():
         help="Method for detecting silence",
     )
 
+    # Splitting and trimming by silence
+    parser.add_argument(
+        "--split-dir",
+        help="Split incoming audio by silence and write WAV file(s) to directory",
+    )
+    parser.add_argument(
+        "--split-format",
+        default="{}.wav",
+        help="Format for split file names (default: '{}.wav', only with --split-dir)",
+    )
+    parser.add_argument(
+        "--trim-silence",
+        action="store_true",
+        help="Trim silence when splitting (only with --split-dir)",
+    )
+    parser.add_argument(
+        "--trim-ratio",
+        default=20.0,
+        type=float,
+        help="Max/current energy ratio used to detect silence (only with --trim-silence)",
+    )
+    parser.add_argument(
+        "--trim-chunk-size",
+        default=960,
+        type=int,
+        help="Size of audio chunks for detecting silence (only with --trim-silence)",
+    )
+    parser.add_argument(
+        "--trim-keep-before",
+        default=0,
+        type=int,
+        help="Number of audio chunks before speech to keep (only with --trim-silence)",
+    )
+    parser.add_argument(
+        "--trim-keep-after",
+        default=0,
+        type=int,
+        help="Number of audio chunks after speech to keep (only with --trim-silence)",
+    )
+
+    parser.add_argument("--quiet", action="store_true", help="Set output type to none")
+
     parser.add_argument(
         "--debug", action="store_true", help="Print DEBUG messages to the console"
     )
@@ -115,6 +161,14 @@ def main():
         logging.basicConfig(level=logging.INFO)
 
     _LOGGER.debug(args)
+
+    if args.quiet:
+        args.output_type = OutputType.NONE
+
+    if args.split_dir:
+        # Directory to write WAV file(s) split by silence
+        args.split_dir = Path(args.split_dir)
+        args.split_dir.mkdir(parents=True, exist_ok=True)
 
     print("Reading raw 16Khz mono audio from stdin...", file=sys.stderr)
 
@@ -135,6 +189,7 @@ def main():
 
         dynamic_max_energy = args.max_energy is None
         max_energy: typing.Optional[float] = args.max_energy
+        split_index = 0
 
         recorder.start()
 
@@ -146,49 +201,75 @@ def main():
             result = recorder.process_chunk(chunk)
             output = ""
 
-            # Print voice command events
-            for event in recorder.events:
-                if event.type == VoiceCommandEventType.STARTED:
-                    output += "["
-                elif event.type == VoiceCommandEventType.STOPPED:
-                    output += "]"
-                elif event.type == VoiceCommandEventType.SPEECH:
-                    output += "S"
-                elif event.type == VoiceCommandEventType.SILENCE:
-                    output += "-"
-                elif event.type == VoiceCommandEventType.TIMEOUT:
-                    output += "T"
+            if args.output_type != OutputType.NONE:
+                # Print voice command events
+                for event in recorder.events:
+                    if event.type == VoiceCommandEventType.STARTED:
+                        output += "["
+                    elif event.type == VoiceCommandEventType.STOPPED:
+                        output += "]"
+                    elif event.type == VoiceCommandEventType.SPEECH:
+                        output += "S"
+                    elif event.type == VoiceCommandEventType.SILENCE:
+                        output += "-"
+                    elif event.type == VoiceCommandEventType.TIMEOUT:
+                        output += "T"
 
-            recorder.events.clear()
+                recorder.events.clear()
 
-            # Print speech/silence
-            if args.output_type == OutputType.SPEECH_SILENCE:
-                if recorder.last_speech:
-                    output += "!"
-                else:
-                    output += "."
-            elif args.output_type == OutputType.CURRENT_ENERGY:
-                # Debiased energy of current chunk
-                energy = int(WebRtcVadRecorder.get_debiased_energy(chunk))
-                output += f"{energy} "
-            elif args.output_type == OutputType.MAX_CURRENT_RATIO:
-                # Ratio of max/current energy
-                energy = WebRtcVadRecorder.get_debiased_energy(chunk)
-                if dynamic_max_energy:
-                    if max_energy is None:
-                        max_energy = energy
+                # Print speech/silence
+                if args.output_type == OutputType.SPEECH_SILENCE:
+                    if recorder.last_speech:
+                        output += "!"
                     else:
-                        max_energy = max(energy, max_energy)
+                        output += "."
+                elif args.output_type == OutputType.CURRENT_ENERGY:
+                    # Debiased energy of current chunk
+                    energy = int(WebRtcVadRecorder.get_debiased_energy(chunk))
+                    output += f"{energy} "
+                elif args.output_type == OutputType.MAX_CURRENT_RATIO:
+                    # Ratio of max/current energy
+                    energy = WebRtcVadRecorder.get_debiased_energy(chunk)
+                    if dynamic_max_energy:
+                        if max_energy is None:
+                            max_energy = energy
+                        else:
+                            max_energy = max(energy, max_energy)
 
-                assert max_energy is not None, "Max energy not set"
-                ratio = max_energy / energy if energy > 0.0 else 0.0
-                output += f"{ratio:.2f} "
+                    assert max_energy is not None, "Max energy not set"
+                    ratio = max_energy / energy if energy > 0.0 else 0.0
+                    output += f"{ratio:.2f} "
 
-            print(output, end="", flush=True)
+                print(output, end="", flush=True)
 
             if result:
                 # Reset after voice command
-                recorder.stop()
+                audio_bytes = recorder.stop()
+
+                if args.split_dir:
+                    if args.trim_silence:
+                        audio_bytes = trim_silence(
+                            audio_bytes,
+                            chunk_size=args.trim_chunk_size,
+                            ratio_threshold=args.trim_ratio,
+                            keep_chunks_before=args.trim_keep_before,
+                            keep_chunks_after=args.trim_keep_after,
+                        )
+
+                    split_wav_path = args.split_dir / args.split_format.format(
+                        split_index
+                    )
+
+                    wav_file: wave.Wave_write = wave.open(str(split_wav_path), "wb")
+                    with wav_file:
+                        wav_file.setframerate(recorder.sample_rate)
+                        wav_file.setsampwidth(2)
+                        wav_file.setnchannels(1)
+                        wav_file.writeframes(audio_bytes)
+
+                    _LOGGER.info("Wrote %s", split_wav_path)
+                    split_index += 1
+
                 recorder.start()
 
     except KeyboardInterrupt:
