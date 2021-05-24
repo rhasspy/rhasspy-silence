@@ -84,6 +84,16 @@ By default, files will simply be numbered (0.wav, 1.wav, etc). Set `--split-form
 
 Adding `--trim-silence` is optional, and can be controlled further with other `--trim-*` options (see `--help`).
 
+## Trimming Silence
+
+Silence can be trimmed from the start and end of an audio file with:
+
+```sh
+$ sox audio.wav -t raw - | bin/rhasspy-silence --quiet --trim-silence > trimmed.wav
+```
+
+See the other `--trim-*` options with `--help` for more control.
+
 ## CLI Arguments
 
 ```

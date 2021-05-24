@@ -1,5 +1,6 @@
 """Command-line interface to rhasspysilence."""
 import argparse
+import io
 import logging
 import sys
 import typing
@@ -162,7 +163,7 @@ def main():
 
     _LOGGER.debug(args)
 
-    if args.quiet:
+    if args.quiet or (args.trim_silence and not args.split_dir):
         args.output_type = OutputType.NONE
 
     if args.split_dir:
@@ -247,6 +248,7 @@ def main():
                 audio_bytes = recorder.stop()
 
                 if args.split_dir:
+                    # Split audio
                     if args.trim_silence:
                         audio_bytes = trim_silence(
                             audio_bytes,
@@ -269,6 +271,27 @@ def main():
 
                     _LOGGER.info("Wrote %s", split_wav_path)
                     split_index += 1
+                elif args.trim_silence:
+                    # Trim silence without splitting
+                    audio_bytes = trim_silence(
+                        audio_bytes,
+                        chunk_size=args.trim_chunk_size,
+                        ratio_threshold=args.trim_ratio,
+                        keep_chunks_before=args.trim_keep_before,
+                        keep_chunks_after=args.trim_keep_after,
+                    )
+
+                    with io.BytesIO() as wav_io:
+                        wav_file: wave.Wave_write = wave.open(wav_io, "wb")
+                        with wav_file:
+                            wav_file.setframerate(recorder.sample_rate)
+                            wav_file.setsampwidth(2)
+                            wav_file.setnchannels(1)
+                            wav_file.writeframes(audio_bytes)
+
+                        sys.stdout.buffer.write(wav_io.getvalue())
+
+                    break
 
                 recorder.start()
 
